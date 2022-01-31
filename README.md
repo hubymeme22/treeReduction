@@ -70,7 +70,7 @@ Assigning a decision
 		simple_and_gate.generate_nodes(2);
 
 		// assign decisions
-		simple_and_gate.insert_decision("11")
+		simple_and_gate.insert_decision("11");
 
 		// look for the output
 		cout << "1 ^ 0 = " << simple_and_gate.decide("10") << "\n";
