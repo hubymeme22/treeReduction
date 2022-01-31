@@ -93,7 +93,7 @@ Simplification of nodes can be done by simply calling the `BoolTree::simplify(..
 		...
 
 		// simplify the nodes first for better decisioning
-		simple_and_gate.simplify( simple_and_gate.get_root() )
+		simple_and_gate.simplify( simple_and_gate.get_root() );
 
 		// look for the output
 		cout << "1 ^ 0 = " << simple_and_gate.decide("10") << "\n";
