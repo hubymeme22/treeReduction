@@ -52,6 +52,9 @@ class BoolTree {
 		// compare two child and simplify the root node
 		void child_compare(node* target_node);
 
+		// compare two parent nodes (end parent nodes) and simplify it
+		void parent_compare(node* target_node);
+
 		// simplifies (making decision faster)
 		void simplify(node* target_node);
 
@@ -161,6 +164,9 @@ void BoolTree::insert_decision(string binary) {
 // simplify the nodes by poping the child node and
 // pushing a node upward
 void BoolTree::child_compare(node* target_node) {
+	if (target_node == NULL || target_node->left == NULL || target_node->right == NULL)
+		return;
+
 	// sanitize and make sure that this target_node is a parent
 	// of two leaf nodes
 	if (target_node->left->data == 2 || target_node->right->data == 2) {
@@ -182,21 +188,66 @@ void BoolTree::child_compare(node* target_node) {
 	}
 }
 
-// TO-DO: make a traversal technique to implement the
-// parent andchild compare algorithms
+// simplifies parent nodes by passing its parent-children nodes' children (leaf)
+// to the upper parent node
+void BoolTree::parent_compare(node* target_node) {
+	// checks if this parent has the valid position (second to the last parent)
+	node* left_parent = target_node->left;
+	node* right_parent = target_node->right;
+
+	// validates if the ff. are parents
+	if ((left_parent == NULL || left_parent->data != 2) || (right_parent == NULL || right_parent->data != 2)) {
+		return;
+	}
+
+	node* left_parent_left = left_parent->left;
+	node* left_parent_right = left_parent->right;
+	node* right_parent_left = right_parent->left;
+	node* right_parent_right = right_parent->right;
+
+	// validates if these nodes are leaf nodes
+	if (
+		(left_parent_left->data == 0 || left_parent_left->data == 1) &&
+		(left_parent_right->data == 0 || left_parent_right->data == 1) &&
+		(right_parent_left->data == 0 || right_parent_left->data == 1) &&
+		(right_parent_right->data == 0 || right_parent_right->data == 1)) {
+
+		// apply the simplification
+		if ((left_parent_left->data == right_parent_left->data) && (left_parent_right->data == right_parent_right->data)) {
+			target_node->left = left_parent_left;
+			target_node->right = left_parent_right;
+
+			// cout << "Simplified!!!!!" << endl;
+			// cout << target_node->data << endl;
+			// cout << target_node->left->data << endl;
+			// cout << target_node->right->data << endl;
+
+			// de-allocate the nodes
+			delete left_parent;
+			delete right_parent;
+			delete right_parent_left;
+			delete right_parent_right;
+		}
+	}
+
+}
+
+// Improved simplification algorithm
+// with parent comparing implemented
 void BoolTree::simplify(node* target_node) {
-	// check of the node is pointing to the left or right leaf, then stop
-	if ((target_node->left->data == 1 || target_node->left->data == 0) &&
-		(target_node->right->data == 1 || target_node->right->data == 0)) {
-		// apply the parent simplification
-		// cout << "STOOOP!!" << endl;
+	if (target_node == NULL)
+		return;
+
+	// second to the last node
+	if ((target_node->depth + 2) == tree_depth) {
+		parent_compare(target_node);
+		child_compare(target_node->left);
+		child_compare(target_node->right);
 		child_compare(target_node);
-		return; // (stop for now)
 	} else {
-		// simplify the left and right node first before
-		// simplifying the self
 		simplify(target_node->left);
 		simplify(target_node->right);
+		parent_compare(target_node);
 		child_compare(target_node);
 	}
 }
